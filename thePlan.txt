@@ -1,0 +1,12 @@
+THE PLAN:
+    - Create an 8 x 8 board (2D-array)
+        - implement a ShowBoard, which nicely depicts the board on console. 
+    - Randomly place X bombs (utilise a random num gen % boardSize to position it's x & y co-ords)
+    - Each square then determines it's number (number = #bombs in surrounding 8 tiles)
+        - The square will have two states: hidden & revealed
+    - Users will 'reveal' sqaures
+        - If bomb, game ends
+        - If number, display number
+            - Reveal any surrounding squares with a num. of 0 (recursive)
+    - User wins if #remaining-squares = #bombs 
+        - Could also implement a system where the user may mark bombs (i.e. m 1,2)
