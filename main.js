@@ -1,3 +1,32 @@
+const readline = require('readline');
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+console.log("Enter a cell:");
+
+rl.on('line', (input) => {
+  // Executed:
+  // Seperate the input (i.e. 1 2) into 1 & 2
+    // make gameboard(i)(j). status = revealed
+    // if it is bomb- you lose, if not continue
+  const parts = input.split(' ');
+
+  gameBoard[parts[0]][parts[1]].status = 'revealed';
+  showBoard(gameBoard);
+
+  
+
+  if (gameBoard[parts[0]][parts[1]].type == 'mine') {
+    console.log("You Lose!");
+    rl.close();
+  }
+
+  console.log("Enter a cell:");
+});
+
 const boardSize = 8;
 
 // Creating the board
@@ -21,6 +50,7 @@ for (let i = 0; i < gameBoard.length; i++) {
 // Placing the bomb's randomly
 placeMines(gameBoard);
 
+// Determining the surrounding-value of each cell. 
 for (let i = 0; i < gameBoard.length; i++) {
   for (let j = 0; j < gameBoard.length; j++) {
     if (gameBoard[i][j].type == 'land') {
@@ -89,8 +119,6 @@ function placeMines(gameBoard) {
   
     gameBoard[randomIntRow][randomIntCol].type = 'mine';
     gameBoard[randomIntRow][randomIntCol].surrounding = 'X';
-    gameBoard[randomIntRow][randomIntCol].status = 'revealed';
-    
   }
 }
 
@@ -115,7 +143,6 @@ function calcSurrMidd(i, j, gameBoard) {
   surroundingNum = checkSurr(i+1, j, gameBoard, surroundingNum);
   surroundingNum = checkSurr(i+1, j+1, gameBoard, surroundingNum);
   gameBoard[i][j].surrounding = surroundingNum;
-  gameBoard[i][j].status = 'revealed';
 }
 
 function calcSurrTopLeft(i, j, gameBoard) {
@@ -124,7 +151,6 @@ function calcSurrTopLeft(i, j, gameBoard) {
   surroundingNum = checkSurr(i+1, j, gameBoard, surroundingNum);
   surroundingNum = checkSurr(i+1, j+1, gameBoard, surroundingNum);
   gameBoard[i][j].surrounding = surroundingNum;
-  gameBoard[i][j].status = 'revealed';
 }
 
 function calcSurrTopRight(i, j, gameBoard) {
@@ -133,7 +159,6 @@ function calcSurrTopRight(i, j, gameBoard) {
   surroundingNum = checkSurr(i+1, j-1, gameBoard, surroundingNum);
   surroundingNum = checkSurr(i+1, j, gameBoard, surroundingNum);
   gameBoard[i][j].surrounding = surroundingNum;
-  gameBoard[i][j].status = 'revealed';
 }
 
 function calcSurrBotLeft(i, j, gameBoard) {
@@ -142,7 +167,6 @@ function calcSurrBotLeft(i, j, gameBoard) {
   surroundingNum = checkSurr(i-1, j+1, gameBoard, surroundingNum);
   surroundingNum = checkSurr(i, j+1, gameBoard, surroundingNum);
   gameBoard[i][j].surrounding = surroundingNum;
-  gameBoard[i][j].status = 'revealed';
 }
 
 function calcSurrBotRight(i, j, gameBoard) {
@@ -151,7 +175,6 @@ function calcSurrBotRight(i, j, gameBoard) {
   surroundingNum = checkSurr(i-1, j, gameBoard, surroundingNum);
   surroundingNum = checkSurr(i, j-1, gameBoard, surroundingNum);
   gameBoard[i][j].surrounding = surroundingNum;
-  gameBoard[i][j].status = 'revealed';
 }
 
 function calcSurrTop(i, j, gameBoard) {
@@ -162,7 +185,6 @@ function calcSurrTop(i, j, gameBoard) {
   surroundingNum = checkSurr(i+1, j, gameBoard, surroundingNum);
   surroundingNum = checkSurr(i+1, j+1, gameBoard, surroundingNum);
   gameBoard[i][j].surrounding = surroundingNum;
-  gameBoard[i][j].status = 'revealed';
 }
 
 function calcSurrBot(i, j, gameBoard) {
@@ -173,7 +195,6 @@ function calcSurrBot(i, j, gameBoard) {
   surroundingNum = checkSurr(i, j-1, gameBoard, surroundingNum);
   surroundingNum = checkSurr(i, j+1, gameBoard, surroundingNum);
   gameBoard[i][j].surrounding = surroundingNum;
-  gameBoard[i][j].status = 'revealed';
 }
 
 
@@ -185,7 +206,6 @@ function calcSurrLeft(i, j, gameBoard) {
   surroundingNum = checkSurr(i+1, j, gameBoard, surroundingNum);
   surroundingNum = checkSurr(i+1, j+1, gameBoard, surroundingNum);
   gameBoard[i][j].surrounding = surroundingNum;
-  gameBoard[i][j].status = 'revealed';
 }
 
 function calcSurrRight(i, j, gameBoard) {
@@ -196,7 +216,6 @@ function calcSurrRight(i, j, gameBoard) {
   surroundingNum = checkSurr(i+1, j-1, gameBoard, surroundingNum);
   surroundingNum = checkSurr(i+1, j, gameBoard, surroundingNum);
   gameBoard[i][j].surrounding = surroundingNum;
-  gameBoard[i][j].status = 'revealed';
 }
 
 
