@@ -1,33 +1,4 @@
-/*
-
-// Asks for boardSize
-function askForDifficulty() {
-  process.stdout.write('What difficulty would you like to play on:')
-  process.stdin.pause();
-  process.stdin.on("readable", function() {
-    let difficulty = process.stdin.read().toString().trim();
-    
-    if (difficulty = 'Easy') {
-      return 5;
-    } else if (difficulty = 'Medium') {
-      return 10;
-    } else if (difficulty = 'Hard') {
-      console.log('15');
-      return 15;
-    } else {
-      console.log('Please choose one of the selected difficulties');
-      askForDifficulty();
-    }
-
-    process.exit();
-  });
-
-}
-*/
-
-
 const boardSize = 8;
-
 
 // Creating the board
 let gameBoard = new Array(boardSize);
@@ -55,16 +26,24 @@ for (let i = 0; i < gameBoard.length; i++) {
     if (gameBoard[i][j].type == 'land') {
       // Middle Section
       if (i >= 1 & i <= (boardSize - 2) & j >= 1 & j <= (boardSize - 2)) {
-        calcSurrMiddle(i, j, gameBoard);
+        calcSurrMidd(i, j, gameBoard);
       } else if (i == 0 && j == 0) { // All corners
-
-      } else if (i == 0 && j == (boardSize - 2)) {
-
-      } else if (i == (boardSize - 2) && j == 0) {
-
-      } else if (i == (boardSize - 2) && j == (boardSize - 2)) {
-
-      }
+        calcSurrTopLeft(i, j, gameBoard);
+      } else if (i == 0 && j == (boardSize - 1)) {
+        calcSurrTopRight(i, j, gameBoard);
+      } else if (i == (boardSize - 1) && j == 0) {
+        calcSurrBotLeft(i, j, gameBoard);
+      } else if (i == (boardSize - 1) && j == (boardSize - 1)) {
+        calcSurrBotRight(i, j, gameBoard);
+      } else if (i == 0) {
+        calcSurrTop(i, j, gameBoard);
+      } else if (i == (boardSize - 1)) {
+        calcSurrBot(i, j, gameBoard);
+      } else if (j == 0) {
+        calcSurrLeft(i, j, gameBoard);
+      } else if (j == (boardSize - 1)) {
+        calcSurrRight(i, j, gameBoard);
+      } 
     }
   }
 }
@@ -125,7 +104,7 @@ function checkSurr (i, j, gameBoard, surroundingNum) {
 }
 
 
-calcSurrMidd(i, j, gameBoard) {
+function calcSurrMidd(i, j, gameBoard) {
   let surroundingNum = 0;
   surroundingNum = checkSurr(i-1, j-1, gameBoard, surroundingNum);
   surroundingNum = checkSurr(i-1, j, gameBoard, surroundingNum);
@@ -138,3 +117,86 @@ calcSurrMidd(i, j, gameBoard) {
   gameBoard[i][j].surrounding = surroundingNum;
   gameBoard[i][j].status = 'revealed';
 }
+
+function calcSurrTopLeft(i, j, gameBoard) {
+  let surroundingNum = 0;
+  surroundingNum = checkSurr(i, j+1, gameBoard, surroundingNum);
+  surroundingNum = checkSurr(i+1, j, gameBoard, surroundingNum);
+  surroundingNum = checkSurr(i+1, j+1, gameBoard, surroundingNum);
+  gameBoard[i][j].surrounding = surroundingNum;
+  gameBoard[i][j].status = 'revealed';
+}
+
+function calcSurrTopRight(i, j, gameBoard) {
+  let surroundingNum = 0;
+  surroundingNum = checkSurr(i, j-1, gameBoard, surroundingNum);
+  surroundingNum = checkSurr(i+1, j-1, gameBoard, surroundingNum);
+  surroundingNum = checkSurr(i+1, j, gameBoard, surroundingNum);
+  gameBoard[i][j].surrounding = surroundingNum;
+  gameBoard[i][j].status = 'revealed';
+}
+
+function calcSurrBotLeft(i, j, gameBoard) {
+  let surroundingNum = 0;
+  surroundingNum = checkSurr(i-1, j, gameBoard, surroundingNum);
+  surroundingNum = checkSurr(i-1, j+1, gameBoard, surroundingNum);
+  surroundingNum = checkSurr(i, j+1, gameBoard, surroundingNum);
+  gameBoard[i][j].surrounding = surroundingNum;
+  gameBoard[i][j].status = 'revealed';
+}
+
+function calcSurrBotRight(i, j, gameBoard) {
+  let surroundingNum = 0;
+  surroundingNum = checkSurr(i-1, j-1, gameBoard, surroundingNum);
+  surroundingNum = checkSurr(i-1, j, gameBoard, surroundingNum);
+  surroundingNum = checkSurr(i, j-1, gameBoard, surroundingNum);
+  gameBoard[i][j].surrounding = surroundingNum;
+  gameBoard[i][j].status = 'revealed';
+}
+
+function calcSurrTop(i, j, gameBoard) {
+  let surroundingNum = 0;
+  surroundingNum = checkSurr(i, j-1, gameBoard, surroundingNum);
+  surroundingNum = checkSurr(i, j+1, gameBoard, surroundingNum);
+  surroundingNum = checkSurr(i+1, j-1, gameBoard, surroundingNum);
+  surroundingNum = checkSurr(i+1, j, gameBoard, surroundingNum);
+  surroundingNum = checkSurr(i+1, j+1, gameBoard, surroundingNum);
+  gameBoard[i][j].surrounding = surroundingNum;
+  gameBoard[i][j].status = 'revealed';
+}
+
+function calcSurrBot(i, j, gameBoard) {
+  let surroundingNum = 0;
+  surroundingNum = checkSurr(i-1, j-1, gameBoard, surroundingNum);
+  surroundingNum = checkSurr(i-1, j, gameBoard, surroundingNum);
+  surroundingNum = checkSurr(i-1, j+1, gameBoard, surroundingNum);
+  surroundingNum = checkSurr(i, j-1, gameBoard, surroundingNum);
+  surroundingNum = checkSurr(i, j+1, gameBoard, surroundingNum);
+  gameBoard[i][j].surrounding = surroundingNum;
+  gameBoard[i][j].status = 'revealed';
+}
+
+
+function calcSurrLeft(i, j, gameBoard) {
+  let surroundingNum = 0;
+  surroundingNum = checkSurr(i-1, j, gameBoard, surroundingNum);
+  surroundingNum = checkSurr(i-1, j+1, gameBoard, surroundingNum);
+  surroundingNum = checkSurr(i, j+1, gameBoard, surroundingNum);
+  surroundingNum = checkSurr(i+1, j, gameBoard, surroundingNum);
+  surroundingNum = checkSurr(i+1, j+1, gameBoard, surroundingNum);
+  gameBoard[i][j].surrounding = surroundingNum;
+  gameBoard[i][j].status = 'revealed';
+}
+
+function calcSurrRight(i, j, gameBoard) {
+  let surroundingNum = 0;
+  surroundingNum = checkSurr(i-1, j, gameBoard, surroundingNum);
+  surroundingNum = checkSurr(i-1, j-1, gameBoard, surroundingNum);
+  surroundingNum = checkSurr(i, j-1, gameBoard, surroundingNum);
+  surroundingNum = checkSurr(i+1, j-1, gameBoard, surroundingNum);
+  surroundingNum = checkSurr(i+1, j, gameBoard, surroundingNum);
+  gameBoard[i][j].surrounding = surroundingNum;
+  gameBoard[i][j].status = 'revealed';
+}
+
+
