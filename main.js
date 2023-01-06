@@ -5,7 +5,7 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-console.log("Enter a cell:");
+process.stdout.write("Enter a cell: ");
 
 rl.on('line', (input) => {
   // Executed:
@@ -15,16 +15,15 @@ rl.on('line', (input) => {
   const parts = input.split(' ');
 
   gameBoard[parts[0]][parts[1]].status = 'revealed';
+  updateBoard(parts[0], parts[1]);
   showBoard(gameBoard);
-
-  
 
   if (gameBoard[parts[0]][parts[1]].type == 'mine') {
     console.log("You Lose!");
     rl.close();
   }
 
-  console.log("Enter a cell:");
+  process.stdout.write("Enter a cell: ");
 });
 
 const boardSize = 8;
@@ -45,41 +44,72 @@ for (let i = 0; i < gameBoard.length; i++) {
     }
   }
 }
-
-
 // Placing the bomb's randomly
 placeMines(gameBoard);
 
-// Determining the surrounding-value of each cell. 
+showBoard(gameBoard);
+
+let cell = {
+  surroundNum: 0
+}
+
 for (let i = 0; i < gameBoard.length; i++) {
   for (let j = 0; j < gameBoard.length; j++) {
     if (gameBoard[i][j].type == 'land') {
-      // Middle Section
-      if (i >= 1 & i <= (boardSize - 2) & j >= 1 & j <= (boardSize - 2)) {
-        calcSurrMidd(i, j, gameBoard);
-      } else if (i == 0 && j == 0) { // All corners
-        calcSurrTopLeft(i, j, gameBoard);
-      } else if (i == 0 && j == (boardSize - 1)) {
-        calcSurrTopRight(i, j, gameBoard);
-      } else if (i == (boardSize - 1) && j == 0) {
-        calcSurrBotLeft(i, j, gameBoard);
-      } else if (i == (boardSize - 1) && j == (boardSize - 1)) {
-        calcSurrBotRight(i, j, gameBoard);
-      } else if (i == 0) {
-        calcSurrTop(i, j, gameBoard);
-      } else if (i == (boardSize - 1)) {
-        calcSurrBot(i, j, gameBoard);
-      } else if (j == 0) {
-        calcSurrLeft(i, j, gameBoard);
-      } else if (j == (boardSize - 1)) {
-        calcSurrRight(i, j, gameBoard);
-      } 
+      
+      calcSurrNum(gameBoard, i, j);
+      gameBoard[i][j].surrounding = cell.surroundNum;
+      
+      cell.surroundNum = 0;
+      gameBoard[i][j].status = 'revealed';
+
     }
   }
 }
 
-// Determine the surrounding # for every square
-showBoard(gameBoard); 
+showBoard(gameBoard);
+
+function calcSurrNum(gameBoard, i, j) {
+  // Top-Left
+  if ((i - 1) >= 0 && (j - 1) >= 0) {
+    checkSurr(gameBoard, i - 1, j - 1);
+  }
+  // Top-Middle
+  if ((i - 1) >= 0 && j >= 0 && j < gameBoard.length) {
+    checkSurr(gameBoard, i - 1, j);
+  }
+  // Top-Right
+  if ((i - 1) >= 0 && (j + 1) < gameBoard.length) {
+    checkSurr(gameBoard, i - 1, j + 1);
+  }
+  // Middle-Left
+  if (i >= 0 && (j - 1) >= 0) {
+    checkSurr(gameBoard, i, j - 1);
+  }
+  // Middle-Right
+  if (i >= 0 && (j + 1) < gameBoard.length) {
+    checkSurr(gameBoard, i, (j+1));
+  }
+  // Bottom-Left
+  if ((i + 1) < gameBoard.length && (j - 1) >= 0) {
+    checkSurr(gameBoard, i + 1, j - 1);
+  }
+  // Bottom-Middle
+  if ((i + 1) < gameBoard.length && j >= 0) {
+    checkSurr(gameBoard, i + 1, j);
+  }
+  // Bottom-Right
+  if ((i + 1) < gameBoard.length && (j + 1) < gameBoard.length) {
+    checkSurr(gameBoard, i + 1, j + 1);
+  }
+}
+
+function checkSurr (gameBoard, i, j) {
+  if (gameBoard[i][j].type == 'mine') {
+    cell.surroundNum++;
+  }
+  
+}
 
 function showBoard (gameBoard) {
   console.log('---------------------------------');
@@ -119,103 +149,12 @@ function placeMines(gameBoard) {
   
     gameBoard[randomIntRow][randomIntCol].type = 'mine';
     gameBoard[randomIntRow][randomIntCol].surrounding = 'X';
+    gameBoard[randomIntRow][randomIntCol].surrounding = 'revealed'
   }
 }
 
-function checkSurr (i, j, gameBoard, surroundingNum) {
-  if (gameBoard[i][j].type == 'mine') {
-    surroundingNum++;
-  }
+function updateBoard(i, j) {
 
-  return surroundingNum;
+
 
 }
-
-
-function calcSurrMidd(i, j, gameBoard) {
-  let surroundingNum = 0;
-  surroundingNum = checkSurr(i-1, j-1, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i-1, j, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i-1, j+1, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i, j-1, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i, j+1, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i+1, j-1, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i+1, j, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i+1, j+1, gameBoard, surroundingNum);
-  gameBoard[i][j].surrounding = surroundingNum;
-}
-
-function calcSurrTopLeft(i, j, gameBoard) {
-  let surroundingNum = 0;
-  surroundingNum = checkSurr(i, j+1, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i+1, j, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i+1, j+1, gameBoard, surroundingNum);
-  gameBoard[i][j].surrounding = surroundingNum;
-}
-
-function calcSurrTopRight(i, j, gameBoard) {
-  let surroundingNum = 0;
-  surroundingNum = checkSurr(i, j-1, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i+1, j-1, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i+1, j, gameBoard, surroundingNum);
-  gameBoard[i][j].surrounding = surroundingNum;
-}
-
-function calcSurrBotLeft(i, j, gameBoard) {
-  let surroundingNum = 0;
-  surroundingNum = checkSurr(i-1, j, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i-1, j+1, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i, j+1, gameBoard, surroundingNum);
-  gameBoard[i][j].surrounding = surroundingNum;
-}
-
-function calcSurrBotRight(i, j, gameBoard) {
-  let surroundingNum = 0;
-  surroundingNum = checkSurr(i-1, j-1, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i-1, j, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i, j-1, gameBoard, surroundingNum);
-  gameBoard[i][j].surrounding = surroundingNum;
-}
-
-function calcSurrTop(i, j, gameBoard) {
-  let surroundingNum = 0;
-  surroundingNum = checkSurr(i, j-1, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i, j+1, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i+1, j-1, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i+1, j, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i+1, j+1, gameBoard, surroundingNum);
-  gameBoard[i][j].surrounding = surroundingNum;
-}
-
-function calcSurrBot(i, j, gameBoard) {
-  let surroundingNum = 0;
-  surroundingNum = checkSurr(i-1, j-1, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i-1, j, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i-1, j+1, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i, j-1, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i, j+1, gameBoard, surroundingNum);
-  gameBoard[i][j].surrounding = surroundingNum;
-}
-
-
-function calcSurrLeft(i, j, gameBoard) {
-  let surroundingNum = 0;
-  surroundingNum = checkSurr(i-1, j, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i-1, j+1, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i, j+1, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i+1, j, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i+1, j+1, gameBoard, surroundingNum);
-  gameBoard[i][j].surrounding = surroundingNum;
-}
-
-function calcSurrRight(i, j, gameBoard) {
-  let surroundingNum = 0;
-  surroundingNum = checkSurr(i-1, j, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i-1, j-1, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i, j-1, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i+1, j-1, gameBoard, surroundingNum);
-  surroundingNum = checkSurr(i+1, j, gameBoard, surroundingNum);
-  gameBoard[i][j].surrounding = surroundingNum;
-}
-
-
