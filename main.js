@@ -40,12 +40,15 @@ for (let i = 0; i < gameBoard.length; i++) {
   for (let j = 0; j < gameBoard.length; j++) {
     gameBoard[i][j] = {
       type: '', // BOMB or NORMAL
-      surrounding: -1, // To display the #
+      surrounding: 'X', // To display the #
       status: 'hidden' // REVEALED or HIDDEN
     }
   }
 }
 
+
+// Placing the bomb's randomly
+placeMines(gameBoard);
 showBoard(gameBoard); 
 
 function showBoard (gameBoard) {
@@ -67,6 +70,26 @@ function showBoard (gameBoard) {
     console.log(rowString);
     console.log('---------------------------------');
   }
+}
 
+function getRandomInt(min, max) {
+  return Math.round(Math.random() * (max - min) + min);
+}
 
+function placeMines(gameBoard) {
+  const numBombs = 12;
+
+  for (let i = 0; i < numBombs; i++) {
+    const randomIntRow = getRandomInt(0, boardSize - 1);
+    const randomIntCol = getRandomInt(0, boardSize - 1);
+  
+    if (gameBoard[randomIntRow][randomIntCol].type == 'bomb') {
+      i--;
+    } 
+  
+    gameBoard[randomIntRow][randomIntCol].type = 'bomb';
+    gameBoard[randomIntRow][randomIntCol].surrounding = 'X';
+    gameBoard[randomIntRow][randomIntCol].status = 'revealed';
+    
+  }
 }
