@@ -1,4 +1,4 @@
-const boardSize = 8;
+const boardSize = 16;
 
 // Creating the board
 let gameBoard = new Array(boardSize);
@@ -106,7 +106,13 @@ function checkSurr (gameBoard, i, j) {
 
 // Displays the 2D-array in a board-like structure
 function showBoard (gameBoard) {
-  console.log('---------------------------------');
+
+  let borderStr = '-'
+  for (let i = 0; i < gameBoard.length; i++) {
+    
+    borderStr += `----`;
+  }
+  console.log(borderStr);
   // Here, we add the numbers onto 'rowString' which is then printed on console.
   // Without this, there would be newline's between every cell. 
   for (let i = 0; i < gameBoard.length; i++) {
@@ -122,7 +128,7 @@ function showBoard (gameBoard) {
     }
     process.stdout.write('|')
     console.log(rowString);
-    console.log('---------------------------------');
+    console.log(borderStr);
   }
 }
 
