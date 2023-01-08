@@ -8,14 +8,10 @@ const rl = readline.createInterface({
 process.stdout.write("Enter a cell: ");
 
 rl.on('line', (input) => {
-  // Executed:
-  // Seperate the input (i.e. 1 2) into 1 & 2
-    // make gameboard(i)(j). status = revealed
-    // if it is bomb- you lose, if not continue
   const parts = input.split(' ');
 
   gameBoard[parts[0]][parts[1]].status = 'revealed';
-  updateBoard(parts[0], parts[1]);
+  updateBoard(gameBoard, parts[0], parts[1]);
   showBoard(gameBoard);
 
   if (gameBoard[parts[0]][parts[1]].type == 'mine') {
@@ -47,8 +43,6 @@ for (let i = 0; i < gameBoard.length; i++) {
 // Placing the bomb's randomly
 placeMines(gameBoard);
 
-showBoard(gameBoard);
-
 let cell = {
   surroundNum: 0
 }
@@ -61,13 +55,13 @@ for (let i = 0; i < gameBoard.length; i++) {
       gameBoard[i][j].surrounding = cell.surroundNum;
       
       cell.surroundNum = 0;
-      gameBoard[i][j].status = 'revealed';
+      // gameBoard[i][j].status = 'revealed';
 
     }
   }
 }
 
-showBoard(gameBoard);
+// showBoard(gameBoard);
 
 function calcSurrNum(gameBoard, i, j) {
   // Top-Left
@@ -137,7 +131,7 @@ function getRandomInt(min, max) {
 }
 
 function placeMines(gameBoard) {
-  const numBombs = 12;
+  const numBombs = 10;
 
   for (let i = 0; i < numBombs; i++) {
     const randomIntRow = getRandomInt(0, boardSize - 1);
@@ -149,12 +143,144 @@ function placeMines(gameBoard) {
   
     gameBoard[randomIntRow][randomIntCol].type = 'mine';
     gameBoard[randomIntRow][randomIntCol].surrounding = 'X';
-    gameBoard[randomIntRow][randomIntCol].surrounding = 'revealed'
+    // gameBoard[randomIntRow][randomIntCol].status = 'revealed'
   }
 }
 
-function updateBoard(i, j) {
+function updateBoard(gameBoard, i, j) {
+  j = parseInt(j);
+  i = parseInt(i);
 
+  console.log(`${i} & ${j}`);
+  // Top-Left
+  if ((i - 1) >= 0 && (j - 1) >= 0) {
+    console.log(`Top Left: ${(i-1)} & ${(j-1)}`);
+    checkForZeroNeighbour(gameBoard, i - 1, j - 1);
+  }
+  // Top-Middle
+  if ((i - 1) >= 0 && j >= 0 && j < gameBoard.length) {
+    console.log(`Top Middle: ${(i-1)} & ${j}`);
+    checkForZeroNeighbour(gameBoard, i - 1, j);
+  }
+  // Top-Right
+  if ((i - 1) >= 0 && (j + 1) < gameBoard.length) {
+    console.log(`Top Right: ${(i-1)} & ${(j+1)}`);
+    checkForZeroNeighbour(gameBoard, i - 1, j + 1);
+  }
+  // Middle-Left
+  if (i >= 0 && (j - 1) >= 0) {
+    console.log('e');
+    checkForZeroNeighbour(gameBoard, i, j - 1);
+  }
+  // Middle-Right
+  if (i >= 0 && (j + 1) < gameBoard.length) {
+    console.log('f');
+    checkForZeroNeighbour(gameBoard, i, (j+1));
+  }
+  // Bottom-Left
+  if ((i + 1) < gameBoard.length && (j - 1) >= 0) {
+    console.log('g');
+    checkForZeroNeighbour(gameBoard, i + 1, j - 1);
+  }
+  // Bottom-Middle
+  if ((i + 1) < gameBoard.length && j >= 0) {
+    console.log('h');
+    checkForZeroNeighbour(gameBoard, i + 1, j);
+  }
+  // Bottom-Right
+  if ((i + 1) < gameBoard.length && (j + 1) < gameBoard.length) {
+    console.log('i');
+    checkForZeroNeighbour(gameBoard, i + 1, j + 1);
+  }
+}
+
+function checkForZeroNeighbour(gameBoard, i, j) {
+  if (gameBoard[i][j].surrounding == 0 && gameBoard[i][j].status == 'hidden') {
+    gameBoard[i][j].status = 'revealed';
+    revealAllSurr(gameBoard, i, j); 
+  }
+
+  return;
+}
+
+function revealAllSurr(gameBoard, i, j) {
+  j = parseInt(j);
+  i = parseInt(i);
+
+  console.log(`${i} & ${j}`);
+  // Top-Left
+  if ((i - 1) >= 0 && (j - 1) >= 0) {
+    
+    if (gameBoard[(i-1)][(j-1)].surrounding == 0 && gameBoard[(i-1)][(j-1)].status == 'hidden') {
+      gameBoard[(i-1)][(j-1)].status = 'revealed';
+      revealAllSurr(gameBoard, (i-1), (j-1));
+    } else {
+      gameBoard[(i-1)][(j-1)].status = 'revealed';
+    }
+  }
+  // Top-Middle
+  if ((i - 1) >= 0 && j >= 0 && j < gameBoard.length && gameBoard[(i-1)][(j)].status == 'hidden') {
+    if (gameBoard[(i-1)][(j)].surrounding == 0) {
+      gameBoard[(i-1)][(j)].status = 'revealed';
+      revealAllSurr(gameBoard, (i-1), (j));
+    } else {
+      gameBoard[(i-1)][(j)].status = 'revealed';
+    }
+  }
+  // Top-Right
+  if ((i - 1) >= 0 && (j + 1) < gameBoard.length) {
+    if (gameBoard[(i-1)][(j+1)].surrounding == 0 && gameBoard[(i-1)][(j+1)].status == 'hidden') {
+      gameBoard[(i-1)][(j+1)].status = 'revealed';
+      revealAllSurr(gameBoard, (i-1), (j+1));
+    } else {
+      gameBoard[(i-1)][(j+1)].status = 'revealed';
+    }
+  }
+  // Middle-Left
+  if (i >= 0 && (j - 1) >= 0) {
+    if (gameBoard[(i)][(j-1)].surrounding == 0 && gameBoard[(i)][(j-1)].status == 'hidden') {
+      gameBoard[(i)][(j-1)].status = 'revealed';
+      revealAllSurr(gameBoard, (i), (j-1));
+    } else {
+      gameBoard[(i)][(j-1)].status = 'revealed';
+    }
+  }
+  // Middle-Right
+  if (i >= 0 && (j + 1) < gameBoard.length) {
+    if (gameBoard[(i)][(j+1)].surrounding == 0 && gameBoard[(i)][(j+1)].status == 'hidden') {
+      gameBoard[(i)][(j+1)].status = 'revealed';
+      revealAllSurr(gameBoard, (i), (j+1));
+    } else {
+      gameBoard[(i)][(j+1)].status = 'revealed';
+    }
+  }
+  // Bottom-Left
+  if ((i + 1) < gameBoard.length && (j - 1) >= 0) {
+    if (gameBoard[(i+1)][(j-1)].surrounding == 0 && gameBoard[(i+1)][(j-1)].status == 'hidden') {
+      gameBoard[(i+1)][(j-1)].status = 'revealed';
+      revealAllSurr(gameBoard, (i+1), (j-1));
+    } else {
+      gameBoard[(i+1)][(j-1)].status = 'revealed';
+    }
+  }
+  // Bottom-Middle
+  if ((i + 1) < gameBoard.length && j >= 0) {
+    if (gameBoard[(i+1)][(j)].surrounding == 0 && gameBoard[(i+1)][(j)].status == 'hidden') {
+      gameBoard[(i+1)][(j)].status = 'revealed';
+      revealAllSurr(gameBoard, (i+1), (j));
+    } else {
+      gameBoard[(i+1)][(j)].status = 'revealed';
+    }
+  }
+  // Bottom-Right
+  if ((i + 1) < gameBoard.length && (j + 1) < gameBoard.length) {
+    if (gameBoard[(i+1)][(j+1)].surrounding == 0 && gameBoard[(i+1)][(j+1)].status == 'hidden') {
+      gameBoard[(i+1)][(j+1)].status = 'revealed';
+      revealAllSurr(gameBoard, (i+1), (j+1));
+    } else {
+      gameBoard[(i+1)][(j+1)].status = 'revealed';
+    }
+  }
 
 
 }
