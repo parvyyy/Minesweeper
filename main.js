@@ -1,6 +1,6 @@
 
 printInstructions();
-const boardSize = 16;
+const boardSize = 3;
 
 // Creating the board
 let gameBoard = new Array(boardSize);
@@ -19,13 +19,15 @@ for (let i = 0; i < gameBoard.length; i++) {
   }
 }
 // Placing the bomb's randomly
-placeMines(gameBoard);
+const numBombs = Math.round((1/4.85)*(boardSize * boardSize));
+placeMines(gameBoard, numBombs);
 
 
 
 let cell = {
-  surroundNum: 0
-}
+  surroundNum: 0,
+  revealedNum: 0
+};
 
 // Determine's the num of surrounding bombs for each cell. 
 for (let i = 0; i < gameBoard.length; i++) {
@@ -55,7 +57,8 @@ rl.on('line', (input) => {
   let i = parseInt(parts[0]);
   let j = parseInt(parts[1]);
 
-  if (isNaN(i) == true || isNaN(j) == true) {
+  // Valid-input check
+  if (isNaN(i) == true || isNaN(j) == true || i < 0 || j < 0 || i >= boardSize || j >= boardSize) {
     console.log('Please enter a valid input');
     process.stdout.write("Enter a cell: ");
   } else if (gameBoard[i][j].type == 'mine') {
@@ -63,14 +66,21 @@ rl.on('line', (input) => {
     rl.close();
   } else {
     gameBoard[i][j].status = 'revealed';
+    cell.revealedNum++
     updateBoard(gameBoard, i, j);
     showBoard(gameBoard);
     process.stdout.write("Enter a cell: ");
   }
+
+  // Win-check
+  if ((boardSize*boardSize - cell.revealedNum) == numBombs) {
+    console.log("You Win!");
+    rl.close();
+  }
 });
 
 /* 
-current issue: an invalid input like a, c, a c, or enter will mess it up. 
+current issue: game win condition
 */
 
 // For a given cell, it calculates the surrounding property by exploring the type of neighbouring cells. 
@@ -159,9 +169,7 @@ function getRandomInt(min, max) {
 }
 
 // Places mines
-function placeMines(gameBoard) {
-  const numBombs = Math.round((1/4.85)*(boardSize * boardSize));
-
+function placeMines(gameBoard, numBombs) {
   for (let i = 0; i < numBombs; i++) {
     const randomIntRow = getRandomInt(0, boardSize - 1);
     const randomIntCol = getRandomInt(0, boardSize - 1);
@@ -177,10 +185,6 @@ function placeMines(gameBoard) {
 }
 
 function updateBoard(gameBoard, i, j) {
-  
-  // j = parseInt(j);
-  // i = parseInt(i);
-
   // It-self
   checkForZeroNeighbour(gameBoard, i, j);
   // Top-Left
@@ -220,6 +224,7 @@ function updateBoard(gameBoard, i, j) {
 function checkForZeroNeighbour(gameBoard, i, j) {
   if (gameBoard[i][j].surrounding == 0 && gameBoard[i][j].status == 'hidden') {
     gameBoard[i][j].status = 'revealed';
+    cell.revealedNum++
     revealAllSurr(gameBoard, i, j); 
   }
 
@@ -234,72 +239,88 @@ function revealAllSurr(gameBoard, i, j) {
   if ((i - 1) >= 0 && (j - 1) >= 0) {
     if (gameBoard[(i-1)][(j-1)].surrounding == 0 && gameBoard[(i-1)][(j-1)].status == 'hidden') {
       gameBoard[(i-1)][(j-1)].status = 'revealed';
+      cell.revealedNum++;
       revealAllSurr(gameBoard, (i-1), (j-1));
-    } else {
+    } else if (gameBoard[(i-1)][(j-1)].status == 'hidden') {
       gameBoard[(i-1)][(j-1)].status = 'revealed';
+      cell.revealedNum++;
     }
   }
   // Top-Middle
   if ((i - 1) >= 0 && j >= 0 && j < gameBoard.length && gameBoard[(i-1)][(j)].status == 'hidden') {
     if (gameBoard[(i-1)][(j)].surrounding == 0) {
       gameBoard[(i-1)][(j)].status = 'revealed';
+      cell.revealedNum++;
       revealAllSurr(gameBoard, (i-1), (j));
-    } else {
+    } else if (gameBoard[(i-1)][(j)].status == 'hidden') {
       gameBoard[(i-1)][(j)].status = 'revealed';
+      cell.revealedNum++;
     }
   }
   // Top-Right
   if ((i - 1) >= 0 && (j + 1) < gameBoard.length) {
     if (gameBoard[(i-1)][(j+1)].surrounding == 0 && gameBoard[(i-1)][(j+1)].status == 'hidden') {
       gameBoard[(i-1)][(j+1)].status = 'revealed';
+      cell.revealedNum++;
       revealAllSurr(gameBoard, (i-1), (j+1));
-    } else {
+    } else if (gameBoard[(i-1)][(j+1)].status == 'hidden') {
       gameBoard[(i-1)][(j+1)].status = 'revealed';
+      cell.revealedNum++;
     }
   }
   // Middle-Left
   if (i >= 0 && (j - 1) >= 0) {
     if (gameBoard[(i)][(j-1)].surrounding == 0 && gameBoard[(i)][(j-1)].status == 'hidden') {
       gameBoard[(i)][(j-1)].status = 'revealed';
+      cell.revealedNum++;
       revealAllSurr(gameBoard, (i), (j-1));
-    } else {
+    } else if (gameBoard[(i)][(j-1)].status == 'hidden') {
       gameBoard[(i)][(j-1)].status = 'revealed';
+      cell.revealedNum++;
     }
   }
   // Middle-Right
   if (i >= 0 && (j + 1) < gameBoard.length) {
     if (gameBoard[(i)][(j+1)].surrounding == 0 && gameBoard[(i)][(j+1)].status == 'hidden') {
       gameBoard[(i)][(j+1)].status = 'revealed';
+      cell.revealedNum++;
       revealAllSurr(gameBoard, (i), (j+1));
-    } else {
+    } else if (gameBoard[(i)][(j+1)].status == 'hidden') {
       gameBoard[(i)][(j+1)].status = 'revealed';
+      cell.revealedNum++;
     }
   }
   // Bottom-Left
   if ((i + 1) < gameBoard.length && (j - 1) >= 0) {
     if (gameBoard[(i+1)][(j-1)].surrounding == 0 && gameBoard[(i+1)][(j-1)].status == 'hidden') {
       gameBoard[(i+1)][(j-1)].status = 'revealed';
+      cell.revealedNum++;
       revealAllSurr(gameBoard, (i+1), (j-1));
-    } else {
+    } else if (gameBoard[(i+1)][(j-1)].status == 'hidden') {
       gameBoard[(i+1)][(j-1)].status = 'revealed';
+      cell.revealedNum++;
     }
   }
   // Bottom-Middle
   if ((i + 1) < gameBoard.length && j >= 0) {
     if (gameBoard[(i+1)][(j)].surrounding == 0 && gameBoard[(i+1)][(j)].status == 'hidden') {
       gameBoard[(i+1)][(j)].status = 'revealed';
+      cell.revealedNum++;
       revealAllSurr(gameBoard, (i+1), (j));
-    } else {
+    } else if (gameBoard[(i+1)][(j)].status == 'hidden') {
       gameBoard[(i+1)][(j)].status = 'revealed';
+      cell.revealedNum++;
     }
   }
   // Bottom-Right
   if ((i + 1) < gameBoard.length && (j + 1) < gameBoard.length) {
     if (gameBoard[(i+1)][(j+1)].surrounding == 0 && gameBoard[(i+1)][(j+1)].status == 'hidden') {
       gameBoard[(i+1)][(j+1)].status = 'revealed';
+      cell.revealedNum++;
       revealAllSurr(gameBoard, (i+1), (j+1));
-    } else {
+    } else if (gameBoard[(i+1)][(j+1)].status == 'hidden') {
       gameBoard[(i+1)][(j+1)].status = 'revealed';
+      cell.revealedNum++;
     }
   }
 }
