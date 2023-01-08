@@ -1,27 +1,3 @@
-const readline = require('readline');
-
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
-
-process.stdout.write("Enter a cell: ");
-
-rl.on('line', (input) => {
-  const parts = input.split(' ');
-
-  gameBoard[parts[0]][parts[1]].status = 'revealed';
-  updateBoard(gameBoard, parts[0], parts[1]);
-  showBoard(gameBoard);
-
-  if (gameBoard[parts[0]][parts[1]].type == 'mine') {
-    console.log("You Lose!");
-    rl.close();
-  }
-
-  process.stdout.write("Enter a cell: ");
-});
-
 const boardSize = 8;
 
 // Creating the board
@@ -43,26 +19,48 @@ for (let i = 0; i < gameBoard.length; i++) {
 // Placing the bomb's randomly
 placeMines(gameBoard);
 
+
+
 let cell = {
   surroundNum: 0
 }
-
+// Determine's the num of surrounding bombs for each cell. 
 for (let i = 0; i < gameBoard.length; i++) {
   for (let j = 0; j < gameBoard.length; j++) {
     if (gameBoard[i][j].type == 'land') {
-      
       calcSurrNum(gameBoard, i, j);
       gameBoard[i][j].surrounding = cell.surroundNum;
-      
       cell.surroundNum = 0;
-      // gameBoard[i][j].status = 'revealed';
-
     }
   }
 }
 
-// showBoard(gameBoard);
+// Question's user and transforms typed input into a 'move' on the game board. 
+const readline = require('readline');
 
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+process.stdout.write("Enter a cell: ");
+
+rl.on('line', (input) => {
+  const parts = input.split(' ');
+
+  gameBoard[parts[0]][parts[1]].status = 'revealed';
+  updateBoard(gameBoard, parts[0], parts[1]);
+  showBoard(gameBoard);
+
+  if (gameBoard[parts[0]][parts[1]].type == 'mine') {
+    console.log("You Lose!");
+    rl.close();
+  }
+  process.stdout.write("Enter a cell: ");
+  
+});
+
+// For a given cell, it calculates the surrounding property by exploring the type of neighbouring cells. 
 function calcSurrNum(gameBoard, i, j) {
   // Top-Left
   if ((i - 1) >= 0 && (j - 1) >= 0) {
@@ -98,6 +96,7 @@ function calcSurrNum(gameBoard, i, j) {
   }
 }
 
+// A helper function to calcSurrNum(), where if the supplied cell has a type of 'mine', iterates a counter by a unit. 
 function checkSurr (gameBoard, i, j) {
   if (gameBoard[i][j].type == 'mine') {
     cell.surroundNum++;
@@ -105,6 +104,7 @@ function checkSurr (gameBoard, i, j) {
   
 }
 
+// Displays the 2D-array in a board-like structure
 function showBoard (gameBoard) {
   console.log('---------------------------------');
   // Here, we add the numbers onto 'rowString' which is then printed on console.
@@ -126,10 +126,12 @@ function showBoard (gameBoard) {
   }
 }
 
+// Returns a random integer between (and including) the given min & max.
 function getRandomInt(min, max) {
   return Math.round(Math.random() * (max - min) + min);
 }
 
+// Places mines
 function placeMines(gameBoard) {
   const numBombs = 10;
 
@@ -148,48 +150,40 @@ function placeMines(gameBoard) {
 }
 
 function updateBoard(gameBoard, i, j) {
+  // Transforms i & j (which are considered strings) into integers, enabling arithmetic to be applied appropriately. 
   j = parseInt(j);
   i = parseInt(i);
 
-  console.log(`${i} & ${j}`);
   // Top-Left
   if ((i - 1) >= 0 && (j - 1) >= 0) {
-    console.log(`Top Left: ${(i-1)} & ${(j-1)}`);
     checkForZeroNeighbour(gameBoard, i - 1, j - 1);
   }
   // Top-Middle
   if ((i - 1) >= 0 && j >= 0 && j < gameBoard.length) {
-    console.log(`Top Middle: ${(i-1)} & ${j}`);
     checkForZeroNeighbour(gameBoard, i - 1, j);
   }
   // Top-Right
   if ((i - 1) >= 0 && (j + 1) < gameBoard.length) {
-    console.log(`Top Right: ${(i-1)} & ${(j+1)}`);
     checkForZeroNeighbour(gameBoard, i - 1, j + 1);
   }
   // Middle-Left
   if (i >= 0 && (j - 1) >= 0) {
-    console.log('e');
     checkForZeroNeighbour(gameBoard, i, j - 1);
   }
   // Middle-Right
   if (i >= 0 && (j + 1) < gameBoard.length) {
-    console.log('f');
     checkForZeroNeighbour(gameBoard, i, (j+1));
   }
   // Bottom-Left
   if ((i + 1) < gameBoard.length && (j - 1) >= 0) {
-    console.log('g');
     checkForZeroNeighbour(gameBoard, i + 1, j - 1);
   }
   // Bottom-Middle
   if ((i + 1) < gameBoard.length && j >= 0) {
-    console.log('h');
     checkForZeroNeighbour(gameBoard, i + 1, j);
   }
   // Bottom-Right
   if ((i + 1) < gameBoard.length && (j + 1) < gameBoard.length) {
-    console.log('i');
     checkForZeroNeighbour(gameBoard, i + 1, j + 1);
   }
 }
@@ -207,10 +201,8 @@ function revealAllSurr(gameBoard, i, j) {
   j = parseInt(j);
   i = parseInt(i);
 
-  console.log(`${i} & ${j}`);
   // Top-Left
   if ((i - 1) >= 0 && (j - 1) >= 0) {
-    
     if (gameBoard[(i-1)][(j-1)].surrounding == 0 && gameBoard[(i-1)][(j-1)].status == 'hidden') {
       gameBoard[(i-1)][(j-1)].status = 'revealed';
       revealAllSurr(gameBoard, (i-1), (j-1));
@@ -281,6 +273,4 @@ function revealAllSurr(gameBoard, i, j) {
       gameBoard[(i+1)][(j+1)].status = 'revealed';
     }
   }
-
-
 }
