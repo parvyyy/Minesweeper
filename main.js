@@ -139,7 +139,8 @@ function getRandomInt(min, max) {
 
 // Places mines
 function placeMines(gameBoard) {
-  const numBombs = 10;
+  const numBombs = Math.round((1/4.85)*(boardSize * boardSize));
+  console.log(numBombs);
 
   for (let i = 0; i < numBombs; i++) {
     const randomIntRow = getRandomInt(0, boardSize - 1);
