@@ -1,3 +1,5 @@
+
+printInstructions();
 const boardSize = 16;
 
 // Creating the board
@@ -24,6 +26,7 @@ placeMines(gameBoard);
 let cell = {
   surroundNum: 0
 }
+
 // Determine's the num of surrounding bombs for each cell. 
 for (let i = 0; i < gameBoard.length; i++) {
   for (let j = 0; j < gameBoard.length; j++) {
@@ -43,22 +46,32 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
+showBoard(gameBoard);
 process.stdout.write("Enter a cell: ");
 
 rl.on('line', (input) => {
   const parts = input.split(' ');
+  // Transforms i & j (which are considered strings) into integers, enabling arithmetic to be applied appropriately. 
+  let i = parseInt(parts[0]);
+  let j = parseInt(parts[1]);
 
-  gameBoard[parts[0]][parts[1]].status = 'revealed';
-  updateBoard(gameBoard, parts[0], parts[1]);
-  showBoard(gameBoard);
-
-  if (gameBoard[parts[0]][parts[1]].type == 'mine') {
+  if (isNaN(i) == true || isNaN(j) == true) {
+    console.log('Please enter a valid input');
+    process.stdout.write("Enter a cell: ");
+  } else if (gameBoard[i][j].type == 'mine') {
     console.log("You Lose!");
     rl.close();
+  } else {
+    gameBoard[i][j].status = 'revealed';
+    updateBoard(gameBoard, i, j);
+    showBoard(gameBoard);
+    process.stdout.write("Enter a cell: ");
   }
-  process.stdout.write("Enter a cell: ");
-  
 });
+
+/* 
+current issue: an invalid input like a, c, a c, or enter will mess it up. 
+*/
 
 // For a given cell, it calculates the surrounding property by exploring the type of neighbouring cells. 
 function calcSurrNum(gameBoard, i, j) {
@@ -107,16 +120,23 @@ function checkSurr (gameBoard, i, j) {
 // Displays the 2D-array in a board-like structure
 function showBoard (gameBoard) {
 
-  let borderStr = '-'
+  let borderStr = '-';
+  let numStr = '';
   for (let i = 0; i < gameBoard.length; i++) {
-    
+    if (i < 10) {
+      numStr += `  ${i} `;
+    } else {
+      numStr += ` ${i} `;
+    }
+     
     borderStr += `----`;
   }
+  console.log(numStr);
   console.log(borderStr);
   // Here, we add the numbers onto 'rowString' which is then printed on console.
   // Without this, there would be newline's between every cell. 
   for (let i = 0; i < gameBoard.length; i++) {
-    let rowString = ''
+    let rowString = ``;
     for (let j = 0; j < gameBoard.length; j++) {
       if (gameBoard[i][j].status != 'hidden') {
         rowString += ` ${gameBoard[i][j].surrounding} |`;
@@ -127,6 +147,7 @@ function showBoard (gameBoard) {
 
     }
     process.stdout.write('|')
+    rowString += `  ${i}`;
     console.log(rowString);
     console.log(borderStr);
   }
@@ -140,7 +161,6 @@ function getRandomInt(min, max) {
 // Places mines
 function placeMines(gameBoard) {
   const numBombs = Math.round((1/4.85)*(boardSize * boardSize));
-  console.log(numBombs);
 
   for (let i = 0; i < numBombs; i++) {
     const randomIntRow = getRandomInt(0, boardSize - 1);
@@ -157,10 +177,12 @@ function placeMines(gameBoard) {
 }
 
 function updateBoard(gameBoard, i, j) {
-  // Transforms i & j (which are considered strings) into integers, enabling arithmetic to be applied appropriately. 
-  j = parseInt(j);
-  i = parseInt(i);
+  
+  // j = parseInt(j);
+  // i = parseInt(i);
 
+  // It-self
+  checkForZeroNeighbour(gameBoard, i, j);
   // Top-Left
   if ((i - 1) >= 0 && (j - 1) >= 0) {
     checkForZeroNeighbour(gameBoard, i - 1, j - 1);
@@ -205,8 +227,8 @@ function checkForZeroNeighbour(gameBoard, i, j) {
 }
 
 function revealAllSurr(gameBoard, i, j) {
-  j = parseInt(j);
-  i = parseInt(i);
+  // j = parseInt(j);
+  // i = parseInt(i);
 
   // Top-Left
   if ((i - 1) >= 0 && (j - 1) >= 0) {
@@ -280,4 +302,11 @@ function revealAllSurr(gameBoard, i, j) {
       gameBoard[(i+1)][(j+1)].status = 'revealed';
     }
   }
+}
+
+function printInstructions() {
+  console.log("This is a simple game of Minesweeper on the console.");
+  console.log("When prompted, please enter a cell in the format 'Row' 'Col'. That is, to reveal the cell at (1,5) simply type 1 5.");
+  console.log("The game will end either when a bomb is revealed in which case the player loses or if the number of remaining cells are equivalent to the number of bombs in which case the player wins.");
+  console.log("Have fun!");
 }
