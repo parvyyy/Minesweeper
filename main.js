@@ -1,6 +1,7 @@
 
 printInstructions();
-const boardSize = 3;
+// Set at default at 10 - changing the board size will not break the game.
+const boardSize = 10;
 
 // Creating the board
 let gameBoard = new Array(boardSize);
@@ -18,18 +19,17 @@ for (let i = 0; i < gameBoard.length; i++) {
     }
   }
 }
-// Placing the bomb's randomly
+
+// Placing the bomb's randomly - the 4.85 scaling factor is based on classic Minesweeper
 const numBombs = Math.round((1/4.85)*(boardSize * boardSize));
 placeMines(gameBoard, numBombs);
-
-
 
 let cell = {
   surroundNum: 0,
   revealedNum: 0
 };
 
-// Determine's the num of surrounding bombs for each cell. 
+// Determine's the num of surrounding mines for each cell. 
 for (let i = 0; i < gameBoard.length; i++) {
   for (let j = 0; j < gameBoard.length; j++) {
     if (gameBoard[i][j].type == 'land') {
@@ -61,10 +61,10 @@ rl.on('line', (input) => {
   if (isNaN(i) == true || isNaN(j) == true || i < 0 || j < 0 || i >= boardSize || j >= boardSize) {
     console.log('Please enter a valid input');
     process.stdout.write("Enter a cell: ");
-  } else if (gameBoard[i][j].type == 'mine') {
+  } else if (gameBoard[i][j].type == 'mine') { // Loss-Check
     console.log("You Lose!");
     rl.close();
-  } else {
+  } else { // Continue's game
     gameBoard[i][j].status = 'revealed';
     cell.revealedNum++
     updateBoard(gameBoard, i, j);
@@ -78,10 +78,6 @@ rl.on('line', (input) => {
     rl.close();
   }
 });
-
-/* 
-current issue: game win condition
-*/
 
 // For a given cell, it calculates the surrounding property by exploring the type of neighbouring cells. 
 function calcSurrNum(gameBoard, i, j) {
@@ -168,7 +164,7 @@ function getRandomInt(min, max) {
   return Math.round(Math.random() * (max - min) + min);
 }
 
-// Places mines
+// Places mines randomly by randomly determining a row & column position. 
 function placeMines(gameBoard, numBombs) {
   for (let i = 0; i < numBombs; i++) {
     const randomIntRow = getRandomInt(0, boardSize - 1);
@@ -180,10 +176,10 @@ function placeMines(gameBoard, numBombs) {
   
     gameBoard[randomIntRow][randomIntCol].type = 'mine';
     gameBoard[randomIntRow][randomIntCol].surrounding = 'X';
-    // gameBoard[randomIntRow][randomIntCol].status = 'revealed'
   }
 }
 
+// When given a cell, passes all neighbouring cells into checkForZeroNeighbour()
 function updateBoard(gameBoard, i, j) {
   // It-self
   checkForZeroNeighbour(gameBoard, i, j);
@@ -221,6 +217,7 @@ function updateBoard(gameBoard, i, j) {
   }
 }
 
+// If a zero cell is located, reveals the cell and then passes the cell position into revealAllSurr()
 function checkForZeroNeighbour(gameBoard, i, j) {
   if (gameBoard[i][j].surrounding == 0 && gameBoard[i][j].status == 'hidden') {
     gameBoard[i][j].status = 'revealed';
@@ -231,6 +228,7 @@ function checkForZeroNeighbour(gameBoard, i, j) {
   return;
 }
 
+// Reveals all neighbouring cells. If a neighbouring cell is a zero, recursively calls itself.
 function revealAllSurr(gameBoard, i, j) {
   // j = parseInt(j);
   // i = parseInt(i);
@@ -325,6 +323,7 @@ function revealAllSurr(gameBoard, i, j) {
   }
 }
 
+// Print's the instructions
 function printInstructions() {
   console.log("This is a simple game of Minesweeper on the console.");
   console.log("When prompted, please enter a cell in the format 'Row' 'Col'. That is, to reveal the cell at (1,5) simply type 1 5.");
